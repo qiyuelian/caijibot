@@ -1,0 +1,50 @@
+# Telegram 频道内容采集机器人 - 依赖包列表
+
+# Telegram 相关
+python-telegram-bot==20.7
+telethon==1.32.1
+
+# 数据库
+aiosqlite==0.19.0
+sqlalchemy==2.0.23
+alembic==1.12.1
+
+# 异步支持
+asyncio-mqtt==0.16.1
+aiofiles==23.2.1
+aiohttp==3.9.1
+
+# 图像处理和去重
+Pillow==10.1.0
+imagehash==4.3.1
+opencv-python==4.8.1.78
+
+# 视频处理
+moviepy==1.0.3
+ffmpeg-python==0.2.0
+
+# 文件处理
+python-magic==0.4.27
+
+# 配置管理
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# 日志和监控
+loguru==0.7.2
+rich==13.7.0
+psutil==5.9.6
+
+# 工具库
+click==8.1.7
+tqdm==4.66.1
+schedule==1.2.0
+
+# 开发和测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+black==23.11.0
+flake8==6.1.0
