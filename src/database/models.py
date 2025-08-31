@@ -111,7 +111,7 @@ class Message(Base):
     # 关系
     channel = relationship("Channel", back_populates="messages")
     tags = relationship("MessageTag", back_populates="message", cascade="all, delete-orphan")
-    duplicates = relationship("Message", remote_side=[id], comment="重复消息")
+    duplicates = relationship("Message", remote_side=[id])
     
     # 索引
     __table_args__ = (
