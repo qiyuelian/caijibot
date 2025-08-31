@@ -7,10 +7,31 @@
 import sys
 from pathlib import Path
 from typing import Optional
+import time
+import datetime
+import os
 
 from loguru import logger
-from rich.console import Console
-from rich.logging import RichHandler
+
+# 设置时区环境变量为北京时间
+os.environ['TZ'] = 'Asia/Shanghai'
+if hasattr(time, 'tzset'):
+    time.tzset()
+
+
+def beijing_time_patcher(record):
+    """将时间转换为北京时间"""
+    # 获取当前北京时间
+    beijing_tz = datetime.timezone(datetime.timedelta(hours=8))
+    # 将记录中的时间转换为北京时间
+    if record["time"].tzinfo is None:
+        # 如果是naive时间，假设为UTC
+        utc_time = record["time"].replace(tzinfo=datetime.timezone.utc)
+        record["time"] = utc_time.astimezone(beijing_tz)
+    else:
+        # 如果已经有时区信息，直接转换
+        record["time"] = record["time"].astimezone(beijing_tz)
+    return True
 
 
 def setup_logger(
@@ -19,8 +40,7 @@ def setup_logger(
     max_size: str = "50 MB",
     rotation: str = "1 day",
     retention: str = "30 days",
-    enable_console: bool = True,
-    enable_rich: bool = True
+    enable_console: bool = True
 ) -> logger:
     """
     设置日志配置
@@ -40,7 +60,7 @@ def setup_logger(
     # 移除默认处理器
     logger.remove()
     
-    # 日志格式
+    # 日志格式 (北京时间)
     log_format = (
         "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
         "<level>{level: <8}</level> | "
@@ -48,35 +68,17 @@ def setup_logger(
         "<level>{message}</level>"
     )
     
-    # 控制台输出
+    # 控制台输出 - 使用普通控制台输出以确保时间正确显示
     if enable_console:
-        if enable_rich:
-            # 使用Rich处理器
-            console = Console()
-            rich_handler = RichHandler(
-                console=console,
-                show_time=True,
-                show_path=True,
-                markup=True,
-                rich_tracebacks=True
-            )
-            logger.add(
-                rich_handler,
-                level=log_level,
-                format="{message}",
-                backtrace=True,
-                diagnose=True
-            )
-        else:
-            # 普通控制台输出
-            logger.add(
-                sys.stdout,
-                level=log_level,
-                format=log_format,
-                colorize=True,
-                backtrace=True,
-                diagnose=True
-            )
+        logger.add(
+            sys.stdout,
+            level=log_level,
+            format=log_format,
+            colorize=True,
+            backtrace=True,
+            diagnose=True,
+            filter=beijing_time_patcher
+        )
     
     # 文件输出
     if log_file:
@@ -93,7 +95,8 @@ def setup_logger(
             compression="zip",
             backtrace=True,
             diagnose=True,
-            encoding="utf-8"
+            encoding="utf-8",
+            filter=beijing_time_patcher
         )
         
         # 添加错误日志文件
@@ -107,7 +110,8 @@ def setup_logger(
             compression="zip",
             backtrace=True,
             diagnose=True,
-            encoding="utf-8"
+            encoding="utf-8",
+            filter=beijing_time_patcher
         )
     
     return logger
